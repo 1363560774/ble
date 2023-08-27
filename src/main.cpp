@@ -5,6 +5,13 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 
+
+#include<WiFi.h>
+
+//wifi部分
+const char* ssid =     "test";
+const char* password = "test";
+
 uint8_t retx = 0;
 uint8_t preretx = 0;
 uint8_t txValue = 0;                         //后面需要发送的值
@@ -124,6 +131,26 @@ class MyCallbacks : public BLECharacteristicCallbacks
     }
 };
 
+//wifi初始化
+void wifi_init ()
+{
+    static char en;
+    WiFi.begin(ssid, password);
+
+    Serial.printf("\r\nConnecting to %s\r\n",ssid);
+    while(en != WL_CONNECTED)
+    {
+        en = WiFiClass::status();
+        delay(500);
+        Serial.printf(".");
+    }
+    if(WiFiClass::status() == WL_CONNECTED)
+    {
+        Serial.printf("\r\nConnected to %s\r\n",ssid);
+        Serial.printf("\r\nIP address: %s\r\n", WiFi.localIP().toString().c_str());
+    }
+}
+
 String my_test_str(const char* open_name, const char* key, const char* value) {
     nvs_handle_t my_handle;
     esp_err_t err;
@@ -161,7 +188,7 @@ String my_test_str(const char* open_name, const char* key, const char* value) {
 void setup() {
     // write your initialization code here
     Serial.begin(115200);
-
+//    wifi_init();
     // 创建一个 BLE 设备
     BLEDevice::init("BAKUMAN");//在这里面是ble的名称
 
