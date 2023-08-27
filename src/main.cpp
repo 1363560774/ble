@@ -4,9 +4,8 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
-
-
-#include<WiFi.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
 
 //wifi部分
 const char* ssid =     "test";
@@ -23,6 +22,15 @@ bool oldDeviceConnected = false;             //上次连接状态d
 #define SERVICE_UUID "12a59900-17cc-11ec-9621-0242ac130002" // UART service UUID
 #define CHARACTERISTIC_UUID_RX "12a59e0a-17cc-11ec-9621-0242ac130002"
 #define CHARACTERISTIC_UUID_TX "12a5a148-17cc-11ec-9621-0242ac130002"
+
+// MQTT Broker
+const char *mqtt_broker = "10.168.1.182";
+const char *topic = "esp8266/test";
+const char *mqtt_username = "admin";
+const char *mqtt_password = "public";
+const int mqtt_port = 1883;
+
+PubSubClient client(espClient);
 
 class MyServerCallbacks : public BLEServerCallbacks
 {
@@ -185,9 +193,41 @@ String my_test_str(const char* open_name, const char* key, const char* value) {
     return get_char;
 }
 
+void callback(char *topic, byte *payload, unsigned int length) {
+    Serial.print("Message arrived in topic: ");
+    Serial.println(topic);
+    Serial.print("Message:");
+    for (int i = 0; i < length; i++) {
+        Serial.print((char) payload[i]);
+    }
+    Serial.println();
+    Serial.println("-----------------------");
+}
+
+void mqtt_init() {
+    client.setServer(mqtt_broker, mqtt_port);
+    client.setCallback(callback);
+    while (!client.connected()) {
+        String client_id = "esp8266-client-";
+        client_id += String(WiFi.macAddress());
+        Serial.printf("The client %s connects to the public mqtt broker\n", client_id.c_str());
+        if (client.connect(client_id.c_str(), mqtt_username, mqtt_password)) {
+            Serial.println("Public emqx mqtt broker connected");
+        } else {
+            Serial.print("failed with state ");
+            Serial.print(client.state());
+            delay(2000);
+        }
+    }
+    // publish and subscribe
+    client.publish(topic, "hello emqx");
+    client.subscribe(topic);
+}
+
 void setup() {
     // write your initialization code here
     Serial.begin(115200);
+    mqtt_init();
     wifi_init();
     // 创建一个 BLE 设备
     BLEDevice::init("BAKUMAN");//在这里面是ble的名称
