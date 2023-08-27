@@ -188,7 +188,7 @@ String my_test_str(const char* open_name, const char* key, const char* value) {
 void setup() {
     // write your initialization code here
     Serial.begin(115200);
-//    wifi_init();
+    wifi_init();
     // 创建一个 BLE 设备
     BLEDevice::init("BAKUMAN");//在这里面是ble的名称
 
