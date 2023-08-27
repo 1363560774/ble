@@ -30,6 +30,7 @@ const char *mqtt_username = "admin";
 const char *mqtt_password = "public";
 const int mqtt_port = 1883;
 
+WiFiClient espClient;
 PubSubClient client(espClient);
 
 class MyServerCallbacks : public BLEServerCallbacks
@@ -227,8 +228,8 @@ void mqtt_init() {
 void setup() {
     // write your initialization code here
     Serial.begin(115200);
-    mqtt_init();
     wifi_init();
+    mqtt_init();
     // 创建一个 BLE 设备
     BLEDevice::init("BAKUMAN");//在这里面是ble的名称
 
@@ -274,4 +275,5 @@ void loop() {
         // do stuff here on connecting
         oldDeviceConnected = deviceConnected;
     }
+    client.loop();
 }
