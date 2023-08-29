@@ -3,6 +3,7 @@
 //
 
 #include <WiFi.h>
+#include "yzl_nvs.h"
 #include <PubSubClient.h>
 
 //wifi部分
@@ -24,6 +25,12 @@ PubSubClient client(espClient);
 void wifi_init ()
 {
     static char en;
+    char* nvs_ssid = get_nvs_str("wifi", "ssid", nullptr);
+    char* nvs_password = get_nvs_str("wifi", "password", nullptr);
+    if (strlen(nvs_ssid) > 1 && strlen(nvs_password) > 1) {
+        ssid = nvs_ssid;
+        password = nvs_password;
+    }
     WiFi.begin(ssid, password);
 
     Serial.printf("\r\nConnecting to %s\r\n",ssid);
