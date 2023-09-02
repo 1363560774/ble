@@ -11,5 +11,5 @@ class yzl_nvs {
 
 };
 char* get_nvs_str(const char* open_name, const char* key, const char* value);
-
+void set_nvs_str(const char* open_name, const char* key, const char* value);
 #endif //BLE_YZL_NVS_H

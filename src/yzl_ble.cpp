@@ -43,13 +43,7 @@ class MyCallbacks : public BLECharacteristicCallbacks
         std::string rxValue = pCharacteristic->getValue(); //接收信息
         if (rxValue.length() > 0)
         { //向串口输出收到的值
-            if (rxValue.length() > 0)
-            {
-                retx = rxValue[0];
-                String value = get_nvs_str("wifi", "str_test2", "set_char2");
-                Serial.println(value);
-                Serial.println(retx);
-            }
+            Serial.println(retx);
         }
     }
 };

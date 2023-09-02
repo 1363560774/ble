@@ -41,3 +41,13 @@ char* get_nvs_str(const char* open_name, const char* key, const char* value) {
     nvs_close(my_handle);
     return get_char;
 }
+
+void set_nvs_str(const char* open_name, const char* key, const char* value) {
+    nvs_handle_t my_handle;
+    esp_err_t err;
+    // Open
+    err = nvs_open(open_name, NVS_READWRITE, &my_handle);
+    if (err == ESP_OK) {
+        nvs_set_str(my_handle, key, value);
+    }
+}
