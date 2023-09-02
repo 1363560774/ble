@@ -23,17 +23,32 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 //wifi初始化
-void wifi_init ()
+void wifi_init(const char* in_ssid, const char* in_password)
 {
+    if (strlen(in_ssid) > 1 && strlen(in_password) > 7) {
+        ssid = in_ssid;
+        password = in_password;
+    }
     static char en;
-    if (ssid == nullptr && password == nullptr) {
+    if (strlen(in_ssid) < 1 && strlen(in_password) < 7) {
         char* nvs_one_wifi = get_nvs_str("wifi", "1", nullptr);
-        std::vector<string> wifi = str_split(nvs_one_wifi, plit);
-        if (!wifi.empty()) {
-            ssid = wifi[0].data();
-            password = wifi[1].data();
+        Serial.printf("nvs_one_wifi=%s\n", nvs_one_wifi);
+        if (strstr(nvs_one_wifi, "wifi:ssid&=")) {
+            std::vector<string> wifi = str_split(nvs_one_wifi, "|$|");
+            std::vector<string> ssid_str = str_split(wifi[0], "&=");
+            std::vector<string> password_str = str_split(wifi[1], "&=");
+            if (ssid_str[1].length() > 1) {
+                ssid = ssid_str[1].data();
+                printf("ssid1=%s\n", ssid);
+            }
+            if (password_str[1].length() > 7) {
+                password = password_str[1].data();
+                printf("password1=%s\n", password);
+            }
         }
     }
+    printf("ssid=%s\n", ssid);
+    printf("password=%s\n", password);
     WiFi.begin(ssid, password);
 
     Serial.printf("\r\nConnecting to %s\r\n",ssid);
@@ -46,8 +61,10 @@ void wifi_init ()
     if(WiFiClass::status() == WL_CONNECTED)
     {
         uint8_t s_len = strlen(ssid);
-        uint8_t p_len = strlen(ssid);
-        char result[s_len + p_len];
+        uint8_t p_len = strlen(password);
+        char result[s_len + p_len + 24];
+        sprintf(result, "%s%s%s%s", "wifi:ssid&=", ssid, "|$|password&=", password);
+        Serial.printf("result = %s\n",result);
         get_nvs_str("wifi", "1", result);
         Serial.printf("\r\nConnected to %s\r\n",ssid);
         Serial.printf("\r\nIP address: %s\r\n", WiFi.localIP().toString().c_str());

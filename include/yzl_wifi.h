@@ -9,7 +9,7 @@
 class yzl_wifi {
 
 };
-void wifi_init();
+void wifi_init(const char* in_ssid, const char* in_password);
 void mqtt_init();
 void mqtt_loop();
 #endif //BLE_YZL_WIFI_H

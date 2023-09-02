@@ -9,7 +9,7 @@
 class ble {
 
 };
-void ble_init();
+void ble_init(BLECharacteristicCallbacks* pCallbacks);
 void ble_loop();
 
 #endif //BLE_BLE_H

@@ -6,7 +6,6 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLE2902.h>
-#include "yzl_nvs.h"
 #include <chrono>
 #include <sstream>
 #include <iomanip>
@@ -36,18 +35,6 @@ class MyServerCallbacks : public BLEServerCallbacks
     }
 };
 
-class MyCallbacks : public BLECharacteristicCallbacks
-{
-    void onWrite(BLECharacteristic *pCharacteristic)
-    {
-        std::string rxValue = pCharacteristic->getValue(); //接收信息
-        if (rxValue.length() > 0)
-        { //向串口输出收到的值
-            Serial.println(retx);
-        }
-    }
-};
-
 std::string get_current_time() {
 
     auto now = std::chrono::system_clock::now();
@@ -66,7 +53,7 @@ std::string get_current_time() {
     return ss.str();
 }
 
-void ble_init() {
+void ble_init(BLECharacteristicCallbacks* pCallbacks) {
     std::string deviceName = "YZL-" + get_current_time();
     // 创建一个 BLE 设备
     BLEDevice::init(deviceName);//在这里面是ble的名称
@@ -80,7 +67,7 @@ void ble_init() {
     pTxCharacteristic = pService->createCharacteristic(CHARACTERISTIC_UUID_TX, BLECharacteristic::PROPERTY_NOTIFY);
     pTxCharacteristic->addDescriptor(new BLE2902());
     BLECharacteristic *pRxCharacteristic = pService->createCharacteristic(CHARACTERISTIC_UUID_RX, BLECharacteristic::PROPERTY_WRITE);
-    pRxCharacteristic->setCallbacks(new MyCallbacks()); //设置回调
+    pRxCharacteristic->setCallbacks(pCallbacks); //设置回调
 
     pService->start();                  // 开始服务
     pServer->getAdvertising()->start(); // 开始广播
