@@ -22,6 +22,12 @@ const int mqtt_port = 1883;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+void mqtt_init();
+
+bool check_wifi() {
+    return WiFiClass::status() == WL_CONNECTED;
+}
+
 //wifi初始化
 void wifi_init(const char* in_ssid, const char* in_password)
 {
@@ -58,7 +64,7 @@ void wifi_init(const char* in_ssid, const char* in_password)
         delay(500);
         Serial.printf(".");
     }
-    if(WiFiClass::status() == WL_CONNECTED)
+    if (WiFiClass::status() == WL_CONNECTED)
     {
         uint8_t s_len = strlen(ssid);
         uint8_t p_len = strlen(password);
@@ -68,6 +74,7 @@ void wifi_init(const char* in_ssid, const char* in_password)
         get_nvs_str("wifi", "1", result);
         Serial.printf("\r\nConnected to %s\r\n",ssid);
         Serial.printf("\r\nIP address: %s\r\n", WiFi.localIP().toString().c_str());
+        mqtt_init();
     }
 }
 

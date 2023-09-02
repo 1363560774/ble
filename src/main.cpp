@@ -39,23 +39,23 @@ class MyCallbacks : public BLECharacteristicCallbacks
     void onWrite(BLECharacteristic *pCharacteristic) override
     {
         std::string rxValue = pCharacteristic->getValue(); //接收信息
-        if (rxValue.length() > 0)
-        { //向串口输出收到的值
-            Serial.printf("rxValue=%s\n", rxValue.c_str());
-            if (strstr(rxValue.c_str(), "wifi:ssid&=")) {
-                std::vector<string> wifi = str_split(rxValue, "|$|");
-                std::vector<string> ssid_str = str_split(wifi[0], "&=");
-                std::vector<string> password_str = str_split(wifi[1], "&=");
-                if (ssid_str[1].length() > 1) {
-                    in_ssid = ssid_str[1].data();
-                }
-                if (password_str[1].length() > 7) {
-                    in_password = password_str[1].data();
-                }
-            }
-            printf("in_ssid=%s\n", in_ssid);
-            printf("in_password=%s\n", in_password);
-        }
+        if (rxValue.length() < 0)
+            return;
+        //向串口输出收到的值
+        Serial.printf("rxValue=%s\n", rxValue.c_str());
+        if (!strstr(rxValue.c_str(), "wifi:ssid&="))
+            return;
+        if (check_wifi())
+            return;
+        std::vector<string> wifi = str_split(rxValue, "|$|");
+        std::vector<string> ssid_str = str_split(wifi[0], "&=");
+        std::vector<string> password_str = str_split(wifi[1], "&=");
+        if (ssid_str[1].length() < 1 && password_str[1].length() < 7)
+            return;
+        in_ssid = ssid_str[1].data();
+        in_password = password_str[1].data();
+        printf("in_ssid=%s && in_password=%s\n", in_ssid, in_password);
+        wifi_init(in_ssid, in_password);
     }
 };
 
@@ -67,9 +67,6 @@ void loop() {
         if (!open_ble) {
             Serial.println("蓝牙打开");
             ble_init(new MyCallbacks);
-            printf("in_ssid=%s && in_password=%s\n", in_ssid, in_password);
-            wifi_init(in_ssid, in_password);
-            mqtt_init();
         }
         open_ble = true;
     } else if (button_state == HIGH) {
