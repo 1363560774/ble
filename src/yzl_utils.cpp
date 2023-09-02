@@ -25,8 +25,8 @@ __attribute__((unused)) vector<string> split(const string &str,const string &pat
     return resultVec;
 }
 
-int main() {
-    std::vector<string> vec = split("1111111&&&&sdew", "&&&&");
-    std::cout << vec[0] << "\n";
-    std::cout << vec[1] << "\n";
-}
+//int main() {
+//    std::vector<string> vec = split("1111111&&&&sdew", "&&&&");
+//    std::cout << vec[0] << "\n";
+//    std::cout << vec[1] << "\n";
+//}
