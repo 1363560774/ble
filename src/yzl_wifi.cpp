@@ -30,7 +30,7 @@ void wifi_init(const char* in_ssid, const char* in_password)
         password = in_password;
     }
     static char en;
-    if (strlen(in_ssid) < 1 && strlen(in_password) < 7) {
+    if (strlen(ssid) < 1 && strlen(password) < 7) {
         char* nvs_one_wifi = get_nvs_str("wifi", "1", nullptr);
         Serial.printf("nvs_one_wifi=%s\n", nvs_one_wifi);
         if (strstr(nvs_one_wifi, "wifi:ssid&=")) {

@@ -42,8 +42,6 @@ class MyCallbacks : public BLECharacteristicCallbacks
         if (rxValue.length() > 0)
         { //向串口输出收到的值
             Serial.printf("rxValue=%s\n", rxValue.c_str());
-            string ssid_ = "ssid";
-            string password_ = "password";
             if (strstr(rxValue.c_str(), "wifi:ssid&=")) {
                 std::vector<string> wifi = str_split(rxValue, "|$|");
                 std::vector<string> ssid_str = str_split(wifi[0], "&=");
