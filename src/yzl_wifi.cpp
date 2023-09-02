@@ -27,8 +27,8 @@ void wifi_init ()
 {
     static char en;
     if (ssid == nullptr && password == nullptr) {
-        char* nvs_one_wifi = get_nvs_str("wifi", reinterpret_cast<const char *>(wifi_nvs_index), nullptr);
-        std::vector<string> wifi = split(nvs_one_wifi, plit);
+        char* nvs_one_wifi = get_nvs_str("wifi", "1", nullptr);
+        std::vector<string> wifi = str_split(nvs_one_wifi, plit);
         if (!wifi.empty()) {
             ssid = wifi[0].data();
             password = wifi[1].data();
@@ -45,7 +45,10 @@ void wifi_init ()
     }
     if(WiFiClass::status() == WL_CONNECTED)
     {
-        set_nvs_str("wifi", reinterpret_cast<const char *>(wifi_nvs_index), strstr(strstr(ssid, "&&&&"), password));
+        uint8_t s_len = strlen(ssid);
+        uint8_t p_len = strlen(ssid);
+        char result[s_len + p_len];
+        get_nvs_str("wifi", "1", result);
         Serial.printf("\r\nConnected to %s\r\n",ssid);
         Serial.printf("\r\nIP address: %s\r\n", WiFi.localIP().toString().c_str());
     }

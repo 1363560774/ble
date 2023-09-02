@@ -12,5 +12,5 @@ class yzl_utils {
 
 };
 using namespace std;
-vector<string> split(const string &str,const string &pattern);
+vector<string> str_split(const string &str,const string &pattern);
 #endif //BLE_YZL_UTILS_H
