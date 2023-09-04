@@ -64,10 +64,21 @@ class MyCallbacks : public BLECharacteristicCallbacks
     }
 };
 
+void callback(char *topic, byte *payload, unsigned int length) {
+    Serial.print("Message arrived in topic: ");
+    Serial.println(topic);
+    Serial.print("Message:");
+    for (int i = 0; i < length; i++) {
+        Serial.print((char) payload[i]);
+    }
+    Serial.println();
+    Serial.println("-----------------------");
+}
+
 void loop() {
     now = millis();
     button_state = digitalRead(ble_button_pin);
-    if (button_state == LOW && now - last_button_press > open_ble_time) {
+    if (button_state != LOW && now - last_button_press > open_ble_time) {
         last_button_press = now;
         if (!open_ble) {
             Serial.println("蓝牙打开");
