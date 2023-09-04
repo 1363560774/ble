@@ -5,6 +5,7 @@
 #include "yzl_nvs.h"
 #include "yzl_utils.h"
 #include <PubSubClient.h>
+#include <thread>
 
 //wifi部分
 const char* ssid = "your_wifi_sidd";
@@ -22,10 +23,24 @@ const int mqtt_port = 1883;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-void mqtt_init();
+bool mqtt_init();
+
+void callback(char *topic, byte *payload, unsigned int length);
 
 bool check_wifi() {
     return WiFiClass::status() == WL_CONNECTED;
+}
+
+// 线程函数
+void doWork() {
+    if (client.connect("client_id.c_str()", mqtt_username, mqtt_password)) {
+        Serial.println("Public emqx mqtt broker connected");
+    } else {
+        Serial.print("failed with state ");
+        Serial.print(client.state());
+        delay(2000);
+    }
+    std::cout << "Worker thread running" << std::endl;
 }
 
 //wifi初始化
@@ -89,24 +104,24 @@ void callback(char *topic, byte *payload, unsigned int length) {
     Serial.println("-----------------------");
 }
 
-void mqtt_init() {
+bool mqtt_init() {
     client.setServer(mqtt_broker, mqtt_port);
     client.setCallback(callback);
     while (!client.connected()) {
         String client_id = "esp-client-";
         client_id += String(WiFi.macAddress());
         Serial.printf("The client %s connects to the public mqtt broker\n", client_id.c_str());
-        if (client.connect(client_id.c_str(), mqtt_username, mqtt_password)) {
-            Serial.println("Public emqx mqtt broker connected");
-        } else {
-            Serial.print("failed with state ");
-            Serial.print(client.state());
-            delay(2000);
-        }
+        // 创建新线程,执行doWork函数
+        std::thread t(doWork);
+        // 主线程继续执行自己的工作
+        std::cout << "Main thread running" << std::endl;
+        // 等待线程t完成
+        t.join();
     }
     // publish and subscribe
     client.publish(topic, "hello emqx");
     client.subscribe(topic);
+    return true;
 }
 
 void mqtt_loop() {

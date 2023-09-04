@@ -21,6 +21,7 @@ int open_ble_time = 3000;
 bool open_ble = false;
 const char* in_ssid = "";
 const char* in_password = "";
+bool mq_connected = false;
 
 void IRAM_ATTR buttonInterrupt() {
     GPIO.status = 1 << ble_button_pin;
@@ -43,7 +44,8 @@ class MyCallbacks : public BLECharacteristicCallbacks
             return;
         //向串口输出收到的值
         Serial.printf("rxValue=%s\n", rxValue.c_str());
-        if (!strstr(rxValue.c_str(), "wifi:ssid&="))
+        string pre = rxValue.substr(0, 11);
+        if (pre != "wifi:ssid&=")
             return;
         if (check_wifi())
             return;
@@ -56,6 +58,9 @@ class MyCallbacks : public BLECharacteristicCallbacks
         in_password = password_str[1].data();
         printf("in_ssid=%s && in_password=%s\n", in_ssid, in_password);
         wifi_init(in_ssid, in_password);
+        if (check_wifi()) {
+            mq_connected = mqtt_init();
+        }
     }
 };
 
@@ -75,5 +80,7 @@ void loop() {
     if (open_ble) {
         ble_loop();
     }
-    mqtt_loop();
+    if (mq_connected) {
+        mqtt_loop();
+    }
 }
