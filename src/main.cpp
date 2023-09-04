@@ -23,6 +23,13 @@ const char* in_ssid = "";
 const char* in_password = "";
 bool mq_connected = false;
 
+// 定义PWM 频道和引脚
+const int pwmChannel = 0;
+const int pwmPin = 5;
+
+// 50Hz频率
+const int freq = 50;
+
 void IRAM_ATTR buttonInterrupt() {
     GPIO.status = 1 << ble_button_pin;
 }
@@ -31,6 +38,12 @@ void setup() {
     // write your initialization code here
     Serial.begin(115200);
     pinMode(ble_button_pin, INPUT_PULLUP);
+    // 配置PWM 通道
+    ledcSetup(pwmChannel, freq, 16);
+
+    // 将通道0绑定到GPIO5
+    ledcAttachPin(pwmPin, pwmChannel);
+
     //中断写法
 //    attachInterrupt(ble_button_pin, buttonInterrupt, RISING);
 }
@@ -44,6 +57,28 @@ class MyCallbacks : public BLECharacteristicCallbacks
             return;
         //向串口输出收到的值
         Serial.printf("rxValue=%s\n", rxValue.c_str());
+
+        if (rxValue == "0") {
+            // 0度
+            ledcWrite(pwmChannel, 500);
+            Serial.println("Rotate to 0 degree");
+            delay(20);
+        }
+
+        if (rxValue == "90") {
+            // 90度
+            ledcWrite(pwmChannel, 1500);
+            Serial.println("Rotate to 90 degree");
+            delay(20);
+        }
+
+        if (rxValue == "180") {
+            // 180度
+            ledcWrite(pwmChannel, 2500);
+            Serial.println("Rotate to 180 degree");
+            delay(20);
+        }
+
         string pre = rxValue.substr(0, 11);
         if (pre != "wifi:ssid&=")
             return;
