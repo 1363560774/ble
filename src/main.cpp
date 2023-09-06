@@ -4,6 +4,7 @@
 #include "yzl_wifi.h"
 #include "yzl_utils.h"
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -57,28 +58,28 @@ class MyCallbacks : public BLECharacteristicCallbacks
             return;
         //向串口输出收到的值
         Serial.printf("rxValue=%s\n", rxValue.c_str());
-
-        if (rxValue == "0") {
-            // 0度
-            ledcWrite(pwmChannel, 500);
-            Serial.println("Rotate to 0 degree");
-            delay(20);
+        string duo = rxValue.substr(0, 6);
+        if (duo == "duo_ji") {
+            int x;
+            int j;
+            try {
+                j = true;
+                string c = rxValue.substr(6, rxValue.length());
+                x = stoi(c);
+            } catch (invalid_argument& e) {
+                j = false;
+                // 处理非数字字符串情况
+            } catch (out_of_range& e) {
+                // 处理超出范围情况
+                x = 8400;
+            }
+            if (j) {
+                ledcWrite(pwmChannel, x * 84);
+                printf("Rotate to x=%d, duty=%d degree \n", x, x * 84);
+                delay(20);
+            }
+            return;
         }
-
-        if (rxValue == "90") {
-            // 90度
-            ledcWrite(pwmChannel, 1500);
-            Serial.println("Rotate to 90 degree");
-            delay(20);
-        }
-
-        if (rxValue == "180") {
-            // 180度
-            ledcWrite(pwmChannel, 2500);
-            Serial.println("Rotate to 180 degree");
-            delay(20);
-        }
-
         string pre = rxValue.substr(0, 11);
         if (pre != "wifi:ssid&=")
             return;
