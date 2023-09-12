@@ -5,6 +5,9 @@
 #include "yzl_utils.h"
 #include <vector>
 #include <iostream>
+#include <TFT_eSPI.h>
+#include "font_50.h"
+#include "img.h"
 
 using namespace std;
 
@@ -31,8 +34,48 @@ const int pwmPin = 5;
 // 50Hz频率
 const int freq = 50;
 
+TFT_eSPI tft = TFT_eSPI(135, 240);
+
 void IRAM_ATTR buttonInterrupt() {
     GPIO.status = 1 << ble_button_pin;
+}
+
+void tft_init()
+{
+    tft.init();
+    tft.setRotation(0);
+    tft.fillScreen(TFT_BLACK);
+    tft.setTextSize(2);
+    uint16_t yellow = tft.color565(255, 255, 0);//进行RGB565颜色 转换
+    tft.setTextColor(yellow);
+    tft.setCursor(0, 0);
+    tft.setTextDatum(MC_DATUM);
+
+
+    tft.setSwapBytes(true);
+    tft.pushImage(0, 0,  135, 240, image);
+    delay(5000);
+
+
+    //半透明
+//    for (uint16_t a = 0; a < 255; a++) // Alpha 0 = 100% background, alpha 255 = 100% foreground
+//    {
+//        //tft.drawFastHLine(192, a, 12, tft.alphaBlend(a, TFT_BLACK, TFT_WHITE));
+//        tft.drawFastHLine(204, a, 12, tft.alphaBlend(a, TFT_RED,   TFT_WHITE));
+//        tft.drawFastHLine(216, a, 12, tft.alphaBlend(a, TFT_GREEN, TFT_WHITE));
+//        tft.drawFastHLine(228, a, 12, tft.alphaBlend(a, TFT_BLUE,  TFT_WHITE));
+//    }
+//
+//    tft.drawFastHLine(104, 12, 60,TFT_RED);//画一条红色线
+//    delay(200);
+
+    // Set up I2S
+//  i2s_install();
+//  i2s_setpin();
+//  i2s_start(I2S_PORT);
+//
+//  delay(500);
+
 }
 
 void setup() {
@@ -44,7 +87,7 @@ void setup() {
 
     // 将通道0绑定到GPIO5
     ledcAttachPin(pwmPin, pwmChannel);
-
+    tft_init();
     //中断写法
 //    attachInterrupt(ble_button_pin, buttonInterrupt, RISING);
 }
@@ -130,4 +173,11 @@ void loop() {
     if (mq_connected) {
         mqtt_loop();
     }
+
+//    tft.drawString("Moonbeam ", 75, 120);
+//    tft.loadFont(font_50); //指定tft屏幕对象载入font_50字库
+//    tft.drawString("ZK",60,20); //在坐标0,0位置输出汉字,就可以在tft显示出来了
+//    tft.drawString("撸起袖子",60,60); //在坐标0,0位置输出汉字,就可以在tft显示出来了
+//    tft.drawString("加油干111！",60,100);
+//    tft.unloadFont(); //释放字库文件,节省资源
 }
