@@ -8,6 +8,7 @@
 #include <TFT_eSPI.h>
 #include "font_50.h"
 #include "img.h"
+#include "imagess.h"
 
 using namespace std;
 
@@ -53,7 +54,7 @@ void tft_init()
 
 
     tft.setSwapBytes(true);
-    tft.pushImage(0, 0,  135, 240, image);
+    tft.pushImage(0, 0,  135, 240, imagee, true, nullptr);
     delay(5000);
 
 
@@ -96,11 +97,18 @@ class MyCallbacks : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic) override
     {
+        uint8_t* uint8 = pCharacteristic->getData(); //接收信息
+        Serial.printf("uint8=%s\n",uint8);
         std::string rxValue = pCharacteristic->getValue(); //接收信息
         if (rxValue.length() < 0)
             return;
         //向串口输出收到的值
-        Serial.printf("rxValue=%s\n", rxValue.c_str());
+//        Serial.printf("rxValue=%s\n", rxValue.c_str());
+        string img = rxValue.substr(0, 3);
+        if (img == "img") {
+            string images = rxValue.substr(6, rxValue.length());
+            Serial.printf("img=%s\n", images.c_str());
+        }
         string duo = rxValue.substr(0, 6);
         if (duo == "duo_ji") {
             int x;
